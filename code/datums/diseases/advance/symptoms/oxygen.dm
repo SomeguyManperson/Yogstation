@@ -44,7 +44,7 @@ Bonus
 		if(4, 5)
 			M.adjustOxyLoss(-7, 0)
 			M.losebreath = max(0, M.losebreath - 4)
-			if(regenerate_blood && M.blood_volume < BLOOD_VOLUME_NORMAL)
+			if(regenerate_blood && M.blood_volume < BLOOD_VOLUME_NORMAL(M))
 				M.blood_volume += 1
 		else
 			if(prob(base_message_chance))
@@ -57,13 +57,13 @@ Bonus
 	var/mob/living/carbon/M = A.affected_mob
 	switch(A.stage)
 		if(3)
-			M.remove_trait(TRAIT_NOBREATH, DISEASE_TRAIT)
+			REMOVE_TRAIT(M, TRAIT_NOBREATH, DISEASE_TRAIT)
 		if(4)
-			M.add_trait(TRAIT_NOBREATH, DISEASE_TRAIT)
+			ADD_TRAIT(M, TRAIT_NOBREATH, DISEASE_TRAIT)
 	return TRUE
 
 /datum/symptom/oxygen/End(datum/disease/advance/A)
 	if(!..())
 		return
 	if(A.stage >= 4)
-		A.affected_mob.remove_trait(TRAIT_NOBREATH, DISEASE_TRAIT)
+		REMOVE_TRAIT(A.affected_mob, TRAIT_NOBREATH, DISEASE_TRAIT)

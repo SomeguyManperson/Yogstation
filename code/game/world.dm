@@ -2,10 +2,15 @@
 
 GLOBAL_VAR(restart_counter)
 
+/world/proc/enable_debugger()
+    var/dll = world.GetConfig("env", "EXTOOLS_DLL") || (fexists("./extools.dll") && "./extools.dll")
+    if (dll)
+        call(dll, "debug_initialize")()
+
 //This happens after the Master subsystem new(s) (it's a global datum)
 //So subsystems globals exist, but are not initialised
 /world/New()
-
+	enable_debugger() //This does nothing if you aren't trying to debug
 	log_world("World loaded at [time_stamp()]!")
 
 	SetupExternalRSC()
@@ -39,11 +44,11 @@ GLOBAL_VAR(restart_counter)
 	load_yogs_stuff() // yogs - Donators
 	refresh_admin_files() //yogs - DB support
 	load_admins()
-	
+
 	LoadVerbs(/datum/verbs/menu)
 	if(CONFIG_GET(flag/usewhitelist))
 		load_whitelist()
-		
+
 	setup_pretty_filter() //yogs
 
 	GLOB.timezoneOffset = text2num(time2text(0,"hh")) * 36000
@@ -114,6 +119,7 @@ GLOBAL_VAR(restart_counter)
 	GLOB.world_attack_log = "[GLOB.log_directory]/attack.log"
 	GLOB.world_pda_log = "[GLOB.log_directory]/pda.log"
 	GLOB.world_telecomms_log = "[GLOB.log_directory]/telecomms.log"
+	GLOB.world_ntsl_log = "[GLOB.log_directory]/ntsl.log"
 	GLOB.world_manifest_log = "[GLOB.log_directory]/manifest.log"
 	GLOB.world_href_log = "[GLOB.log_directory]/hrefs.log"
 	GLOB.sql_error_log = "[GLOB.log_directory]/sql.log"
@@ -122,6 +128,8 @@ GLOBAL_VAR(restart_counter)
 	GLOB.world_runtime_log = "[GLOB.log_directory]/runtime.log"
 	GLOB.query_debug_log = "[GLOB.log_directory]/query_debug.log"
 	GLOB.world_job_debug_log = "[GLOB.log_directory]/job_debug.log"
+	GLOB.world_paper_log = "[GLOB.log_directory]/paper.log"
+	GLOB.tgui_log = "[GLOB.log_directory]/tgui.log"
 
 #ifdef UNIT_TESTS
 	GLOB.test_log = file("[GLOB.log_directory]/tests.log")
@@ -136,6 +144,7 @@ GLOBAL_VAR(restart_counter)
 	start_log(GLOB.world_qdel_log)
 	start_log(GLOB.world_runtime_log)
 	start_log(GLOB.world_job_debug_log)
+	start_log(GLOB.tgui_log)
 
 	GLOB.changelog_hash = md5('html/changelog.html') //for telling if the changelog has changed recently
 	if(fexists(GLOB.config_error_log))
@@ -312,3 +321,26 @@ GLOBAL_VAR(restart_counter)
 	maxz++
 	SSmobs.MaxZChanged()
 	SSidlenpcpool.MaxZChanged()
+
+/world/proc/change_fps(new_value = 20)
+	if(new_value <= 0)
+		CRASH("change_fps() called with [new_value] new_value.")
+	if(fps == new_value)
+		return //No change required.
+
+	fps = new_value
+	on_tickrate_change()
+
+
+/world/proc/change_tick_lag(new_value = 0.5)
+	if(new_value <= 0)
+		CRASH("change_tick_lag() called with [new_value] new_value.")
+	if(tick_lag == new_value)
+		return //No change required.
+
+	tick_lag = new_value
+	on_tickrate_change()
+
+
+/world/proc/on_tickrate_change()
+	SStimer?.reset_buckets()

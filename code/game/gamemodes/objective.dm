@@ -98,7 +98,7 @@ GLOBAL_LIST(admin_objective_list) //Prefilled admin assignable objective list
 			. += M
 
 //dupe_search_range is a list of antag datums / minds / teams
-/datum/objective/proc/find_target(dupe_search_range)
+/datum/objective/proc/find_target(dupe_search_range, blacklist)
 	var/list/datum/mind/owners = get_owners()
 	if(!dupe_search_range)
 		dupe_search_range = get_owners()
@@ -110,7 +110,12 @@ GLOBAL_LIST(admin_objective_list) //Prefilled admin assignable objective list
 			try_target_late_joiners = TRUE
 	for(var/datum/mind/possible_target in get_crewmember_minds())
 		if(!(possible_target in owners) && ishuman(possible_target.current) && (possible_target.current.stat != DEAD) && is_unique_objective(possible_target,dupe_search_range))
-			possible_targets += possible_target
+			//yogs start -- Quiet Rounds
+			var/mob/living/carbon/human/guy = possible_target.current
+			if(possible_target.antag_datums || !(guy.client && (guy.client.prefs.yogtoggles & QUIET_ROUND)))
+				if (!(possible_target in blacklist))
+					possible_targets += possible_target//yogs indent
+			//yogs end
 	if(try_target_late_joiners)
 		var/list/all_possible_targets = possible_targets.Copy()
 		for(var/I in all_possible_targets)
@@ -338,7 +343,7 @@ GLOBAL_LIST(admin_objective_list) //Prefilled admin assignable objective list
 
 /datum/objective/purge
 	name = "no mutants on shuttle"
-	explanation_text = "Ensure no mutant humanoid species are present aboard the escape shuttle."
+	explanation_text = "Ensure no mutant humanoids or nonhuman species are present aboard the escape shuttle."
 	martyr_compatible = 1
 
 /datum/objective/purge/check_completion()
@@ -499,6 +504,7 @@ GLOBAL_LIST_EMPTY(possible_items)
 /datum/objective/steal/proc/set_target(datum/objective_item/item)
 	if(item)
 		targetinfo = item
+		targetinfo.objective = src
 		steal_target = targetinfo.targetitem
 		explanation_text = "Steal [targetinfo.name]"
 		give_special_equipment(targetinfo.special_equipment)
@@ -680,6 +686,24 @@ GLOBAL_LIST_EMPTY(possible_items_special)
 		target_amount = count
 	update_explanation_text()
 
+/datum/objective/protect_object
+	name = "protect object"
+	var/obj/protect_target
+
+/datum/objective/protect_object/proc/set_target(obj/O)
+	protect_target = O
+	update_explanation_text()
+
+/datum/objective/protect_object/update_explanation_text()
+	. = ..()
+	if(protect_target)
+		explanation_text = "Protect \the [protect_target] at all costs."
+	else
+		explanation_text = "Free objective."
+
+/datum/objective/protect_object/check_completion()
+	return !QDELETED(protect_target)
+
 //Changeling Objectives
 
 /datum/objective/absorb
@@ -807,52 +831,6 @@ GLOBAL_LIST_EMPTY(possible_items_special)
 	name = "steal five of"
 	explanation_text = "Steal at least five items!"
 	var/list/wanted_items = list()
-
-/datum/objective/steal_five_of_type/New()
-	..()
-	wanted_items = typecacheof(wanted_items)
-
-/datum/objective/steal_five_of_type/check_completion()
-	var/list/datum/mind/owners = get_owners()
-	var/stolen_count = 0
-	for(var/datum/mind/M in owners)
-		if(!isliving(M.current))
-			continue
-		var/list/all_items = M.current.GetAllContents()	//this should get things in cheesewheels, books, etc.
-		for(var/obj/I in all_items) //Check for wanted items
-			if(is_type_in_typecache(I, wanted_items))
-				stolen_count++
-	return stolen_count >= 5
-
-/datum/objective/steal_five_of_type/summon_guns
-	name = "steal guns"
-	explanation_text = "Steal at least five guns!"
-	wanted_items = list(/obj/item/gun)
-
-/datum/objective/steal_five_of_type/summon_magic
-	name = "steal magic"
-	explanation_text = "Steal at least five magical artefacts!"
-	wanted_items = list()
-
-/datum/objective/steal_five_of_type/summon_magic/New()
-	wanted_items = GLOB.summoned_magic_objectives
-	..()
-
-/datum/objective/steal_five_of_type/summon_magic/check_completion()
-	var/list/datum/mind/owners = get_owners()
-	var/stolen_count = 0
-	for(var/datum/mind/M in owners)
-		if(!isliving(M.current))
-			continue
-		var/list/all_items = M.current.GetAllContents()	//this should get things in cheesewheels, books, etc.
-		for(var/obj/I in all_items) //Check for wanted items
-			if(istype(I, /obj/item/book/granter/spell))
-				var/obj/item/book/granter/spell/spellbook = I
-				if(!spellbook.used || !spellbook.oneuse) //if the book still has powers...
-					stolen_count++ //it counts. nice.
-			else if(is_type_in_typecache(I, wanted_items))
-				stolen_count++
-	return stolen_count >= 5
 
 //Created by admin tools
 /datum/objective/custom
@@ -1058,3 +1036,24 @@ GLOBAL_LIST_EMPTY(possible_items_special)
 	for(var/T in allowed_types)
 		var/datum/objective/X = T
 		GLOB.admin_objective_list[initial(X.name)] = T
+
+/datum/objective/contract
+	var/payout = 0
+	var/payout_bonus = 0
+	var/area/dropoff = null
+
+// Generate a random valid area on the station that the dropoff will happen.
+/datum/objective/contract/proc/generate_dropoff()
+	var/found = FALSE
+	while (!found)
+		var/area/dropoff_area = pick(GLOB.sortedAreas)
+		if(dropoff_area && is_station_level(dropoff_area.z) && dropoff_area.valid_territory)
+			dropoff = dropoff_area
+			found = TRUE
+
+// Check if both the contractor and contract target are at the dropoff point.
+/datum/objective/contract/proc/dropoff_check(mob/user, mob/target)
+	var/area/user_area = get_area(user)
+	var/area/target_area = get_area(target)
+
+	return (istype(user_area, dropoff) && istype(target_area, dropoff))
