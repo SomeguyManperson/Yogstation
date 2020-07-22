@@ -50,9 +50,11 @@
 	//Population Cap Checking
 	var/extreme_popcap = CONFIG_GET(number/extreme_popcap)
 //Yogs start -- Keeps extreme popcap as always being a living-players count.
-	if(!real_bans_only && extreme_popcap && living_player_count() >= extreme_popcap && !admin && !GLOB.joined_player_list.Find(ckey))
-		log_access("Failed Login: [key] - Population cap reached")
-		return list("reason"="popcap", "desc"= "\nReason: [CONFIG_GET(string/extreme_popcap_message)]")
+	if(!real_bans_only && extreme_popcap) // if we ought to use the extreme popcap 
+		if(living_player_count() + (SSticker && SSticker.queued_players.len) >= extreme_popcap) // if the extreme popcap has been reached
+			if(!admin && !GLOB.joined_player_list.Find(ckey) && !(is_donator(C) || (C.ckey in get_donators()))) // if they are not exempt
+				log_access("Failed Login: [key] - Population cap reached")
+				return list("reason"="popcap", "desc"= "\nReason: [CONFIG_GET(string/extreme_popcap_message)]")
 /*Yogs continue
 	if(!real_bans_only && !C && extreme_popcap && !admin)
 		var/hard_popcap = CONFIG_GET(number/hard_popcap)
@@ -202,7 +204,7 @@ Yogs End*/
 			return null
 
 		if (C) //user is already connected!.
-			to_chat(C, "You are about to get disconnected for matching a sticky ban after you connected. If this turns out to be the ban evasion detection system going haywire, we will automatically detect this and revert the matches. if you feel that this is the case, please wait EXACTLY 6 seconds then reconnect using file -> reconnect to see if the match was automatically reversed.")
+			to_chat(C, "You are about to get disconnected for matching a sticky ban after you connected. If this turns out to be the ban evasion detection system going haywire, we will automatically detect this and revert the matches. if you feel that this is the case, please wait EXACTLY 6 seconds then reconnect using file -> reconnect to see if the match was automatically reversed.", confidential=TRUE)
 
 		var/desc = "\nReason:(StickyBan) You, or another user of this computer or connection ([bannedckey]) is banned from playing here. The ban reason is:\n[ban["message"]]\nThis ban was applied by [ban["admin"]]\nThis is a BanEvasion Detection System ban, if you think this ban is a mistake, please wait EXACTLY 6 seconds, then try again before filing an appeal. If you wish to appeal this ban please use the keyword 'assistantgreytide' to register an account on the forums.\n" //yogs
 		. = list("reason" = "Stickyban", "desc" = desc)

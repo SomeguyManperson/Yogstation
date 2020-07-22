@@ -70,10 +70,14 @@
 				spendtime.target = obsessionmind
 				objectives += spendtime
 			if("polaroid")
+				/*
+				 * This is currently commented out like this so that there still is a chance for a third objective if applicable
+				 * but this won't add the objective if it tries to select the picture one
 				var/datum/objective/polaroid/polaroid = new
 				polaroid.owner = owner
 				polaroid.target = obsessionmind
 				objectives += polaroid
+				*/
 			if("hug")
 				var/datum/objective/hug/hug = new
 				hug.owner = owner
@@ -117,7 +121,7 @@
 		if(trauma.total_time_creeping > 0)
 			report += "<span class='greentext'>The [name] spent a total of [DisplayTimeText(trauma.total_time_creeping)] being near [trauma.obsession]!</span>"
 		else
-			report += "<span class='redtext'>The [name] did not go near their obsession the entire round! That's extremely impressive, but you are a shit [name]!</span>"
+			report += "<span class='redtext'>The [name] did not go near their obsession the entire round! That's extremely impressive!</span>"
 	else
 		report += "<span class='redtext'>The [name] had no trauma attached to their antagonist ways! Either it bugged out or an admin incorrectly gave this good samaritan antag and it broke! You might as well show yourself!!</span>"
 

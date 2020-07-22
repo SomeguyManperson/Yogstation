@@ -79,7 +79,6 @@
 							c.name = copy.name
 							c.fields = copy.fields
 							c.update_icon()
-							c.updateinfolinks()
 							c.stamps = copy.stamps
 							if(copy.stamped)
 								c.stamped = copy.stamped.Copy()
@@ -318,7 +317,7 @@
 	return 0
 
 /obj/machinery/photocopier/proc/copier_empty()
-	if(copy || photocopy || check_ass())
+	if(copy || photocopy || doccopy || check_ass())
 		return 0
 	else
 		return 1
@@ -330,6 +329,6 @@
 	name = "toner cartridge"
 	icon = 'icons/obj/device.dmi'
 	icon_state = "tonercartridge"
-	grind_results = list("iodine" = 40, "iron" = 10)
+	grind_results = list(/datum/reagent/iodine = 40, /datum/reagent/iron = 10)
 	var/charges = 5
 	var/max_charges = 5

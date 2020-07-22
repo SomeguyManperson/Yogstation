@@ -9,6 +9,8 @@ SUBSYSTEM_DEF(mapping)
 	var/datum/map_config/config
 	var/datum/map_config/next_map_config
 
+	var/map_voted = FALSE
+
 	var/list/map_templates = list()
 
 	var/list/ruins_templates = list()
@@ -17,6 +19,8 @@ SUBSYSTEM_DEF(mapping)
 
 	var/list/shuttle_templates = list()
 	var/list/shelter_templates = list()
+
+	var/list/station_minimaps = list()
 
 	var/list/areas_in_z = list()
 
@@ -67,13 +71,16 @@ SUBSYSTEM_DEF(mapping)
 	for (var/i in 1 to config.space_empty_levels)
 		++space_levels_so_far
 		empty_space = add_new_zlevel("Empty Area [space_levels_so_far]", list(ZTRAIT_LINKAGE = CROSSLINKED))
-	// and the transit level
-	transit = add_new_zlevel("Transit/Reserved", list(ZTRAIT_RESERVED = TRUE))
 
 	// Pick a random away mission.
 	if(CONFIG_GET(flag/roundstart_away))
 		createRandomZlevel()
 
+	// Load the virtual reality hub
+	if(CONFIG_GET(flag/virtual_reality))
+		to_chat(world, "<span class='boldannounce'>Loading virtual reality...</span>")
+		load_new_z_level("_maps/RandomZLevels/VR/vrhub.dmm", "Virtual Reality Hub")
+		to_chat(world, "<span class='boldannounce'>Virtual reality loaded.</span>")
 
 	// Generate mining ruins
 	loading_ruins = TRUE
@@ -90,11 +97,15 @@ SUBSYSTEM_DEF(mapping)
 	seedStation()
 	loading_ruins = FALSE
 #endif
+	// Add the transit level
+	transit = add_new_zlevel("Transit/Reserved", list(ZTRAIT_RESERVED = TRUE))
 	repopulate_sorted_areas()
 	// Set up Z-level transitions.
 	setup_map_transitions()
 	generate_station_area_list()
 	initialize_reserved_level()
+	// Build minimaps
+	build_minimaps()
 	return ..()
 
 /datum/controller/subsystem/mapping/proc/wipe_reservations(wipe_safety_delay = 100)
@@ -239,7 +250,7 @@ SUBSYSTEM_DEF(mapping)
 
 	// load mining
 	if(config.minetype == "lavaland")
-		LoadGroup(FailedZs, "Lavaland", "yogstation/map_files/mining", "Lavaland.dmm", default_traits = ZTRAITS_LAVALAND) //Yogs, yoglavaland
+		LoadGroup(FailedZs, "Lavaland", "map_files/mining", "Lavaland.dmm", default_traits = ZTRAITS_LAVALAND) //Yogs, yoglavaland
 	else if (!isnull(config.minetype))
 		INIT_ANNOUNCE("WARNING: An unknown minetype '[config.minetype]' was set! This is being ignored! Update the maploader code!")
 #endif
@@ -270,11 +281,15 @@ GLOBAL_LIST_EMPTY(the_station_areas)
 		log_world("ERROR: Station areas list failed to generate!")
 
 /datum/controller/subsystem/mapping/proc/maprotate()
+	if(map_voted)
+		map_voted = FALSE
+		return
+
 	var/players = GLOB.clients.len
 	var/list/mapvotes = list()
 	//count votes
-	var/amv = CONFIG_GET(flag/allow_map_voting)
-	if(amv)
+	var/pmv = CONFIG_GET(flag/preference_map_voting)
+	if(pmv)
 		for (var/client/c in GLOB.clients)
 			var/vote = c.prefs.preferred_map
 			if (!vote)
@@ -307,7 +322,7 @@ GLOBAL_LIST_EMPTY(the_station_areas)
 			mapvotes.Remove(map)
 			continue
 
-		if(amv)
+		if(pmv)
 			mapvotes[map] = mapvotes[map]*VM.voteweight
 
 	var/pickedmap = pickweight(mapvotes)
@@ -373,7 +388,7 @@ GLOBAL_LIST_EMPTY(the_station_areas)
 
 		var/datum/map_template/shuttle/S = new shuttle_type()
 		if(unbuyable.Find(S.mappath))
-			S.can_be_bought = FALSE
+			S.credit_cost = INFINITY
 
 		shuttle_templates[S.shuttle_id] = S
 		map_templates[S.shuttle_id] = S
@@ -508,7 +523,10 @@ GLOBAL_LIST_EMPTY(the_station_areas)
 	used_turfs.Cut()
 	reserve_turfs(clearing)
 
-
+/datum/controller/subsystem/mapping/proc/build_minimaps()
+	to_chat(world, "<span class='boldannounce'>Building minimaps...</span>")
+	for(var/z in SSmapping.levels_by_trait(ZTRAIT_STATION))
+		station_minimaps += new /datum/minimap(z)
 
 /datum/controller/subsystem/mapping/proc/reg_in_areas_in_z(list/areas)
 	for(var/B in areas)

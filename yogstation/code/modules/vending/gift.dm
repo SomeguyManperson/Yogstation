@@ -18,6 +18,7 @@
 					/obj/item/camera_film = 30,
 					/obj/item/storage/photo_album = 5,
 					/obj/item/storage/photobook = 5,
+					/obj/item/hourglass = 2,
 					/obj/item/toy/frisbee = 2,
 					/obj/item/toy/boomerang = 2,
 					/obj/item/storage/bag/photo = 5,
@@ -29,6 +30,7 @@
 					/obj/item/toy/plush/nukeplushie = 2,
 					/obj/item/toy/plush/slimeplushie = 2,
 					/obj/item/toy/plush/inorixplushie = 2,
+					/obj/item/toy/plush/beeplushie = 2,
 					/obj/item/instrument/accordion = 1,
 					/obj/item/instrument/eguitar = 1,
 					/obj/item/instrument/glockenspiel = 1,
@@ -58,8 +60,7 @@
 					/obj/item/cartridge/lawyer = 2,
 					/obj/item/cartridge/curator = 2,
 					/obj/item/cartridge/roboticist = 2,
-					/obj/item/cartridge/quartermaster = 2,
-					/obj/item/deodorant = 3)
+					/obj/item/cartridge/quartermaster = 2)
 	contraband = list(/obj/item/clothing/under/rank/psyche = 1,
 					  /obj/item/instrument/violin/golden = 1,
 					  /obj/item/clothing/gloves/color/fyellow = 1,
