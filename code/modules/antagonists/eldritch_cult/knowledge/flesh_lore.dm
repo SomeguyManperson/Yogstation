@@ -36,10 +36,7 @@
 	if(eldritch_effect)
 		. = TRUE
 		eldritch_effect.on_effect()
-		if(ishuman(target))
-			var/mob/living/carbon/human/H = target
-			H.bleed_rate += 7
-
+			crit_wound.apply_wound(bodypart)
 	if(QDELETED(human_target) || human_target.stat != DEAD)
 		return
 
@@ -109,10 +106,7 @@
 
 /datum/eldritch_knowledge/flesh_blade_upgrade/on_eldritch_blade(target,user,proximity_flag,click_parameters)
 	. = ..()
-	if(ishuman(target))
-		var/mob/living/carbon/human/H = target
-		H.bleed_rate += 3
-
+		crit_wound.apply_wound(bodypart)
 /datum/eldritch_knowledge/raw_prophet
 	name = "Raw Ritual"
 	gain_text = "I saw the mirror-sheen in their dead eyes. It could be put to use."

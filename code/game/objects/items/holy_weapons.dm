@@ -260,11 +260,6 @@
 	if(user.mind && (user.mind.holy_role) && !reskinned)
 		reskin_holy_weapon(user)
 
-  /*
-  reskin_holy_weapon: Shows a user a list of all available nullrod reskins and based on his choice replaces the nullrod with the reskinned version
-
-  Arguments:
-  M : The mob choosing a nullrod reskin
   */
 /obj/item/nullrod/proc/reskin_holy_weapon(mob/M)
 	var/list/display_names = list()
@@ -292,11 +287,6 @@
 		qdel(src)
 		M.put_in_active_hand(holy_weapon)
 
-  /*
-  check_menu : Checks if we are allowed to interact with a radial menu
-
-  Arguments:
-  user : The mob interacting with a menu
   */
 /obj/item/nullrod/proc/check_menu(mob/user)
 	if(!istype(user))
@@ -557,7 +547,6 @@
 	attack_verb = list("sawed", "torn", "cut", "chopped", "diced")
 	hitsound = 'sound/weapons/chainsawhit.ogg'
 
-
 /obj/item/nullrod/hammmer
 	icon_state = "hammeron"
 	item_state = "hammeron"
@@ -684,8 +673,6 @@
 		user.faction |= "carp"
 		used_blessing = TRUE
 
-
-
 /obj/item/nullrod/claymore/bostaff //May as well make it a "claymore" and inherit the blocking
 	name = "monk's staff"
 	desc = "A long, tall staff made of polished wood. Traditionally used in ancient old-Earth martial arts, it is now used to harass the clown."
@@ -727,7 +714,6 @@
 
 /obj/item/nullrod/tribal_knife/process()
 	slowdown = rand(-2, 2)
-
 
 /obj/item/nullrod/pitchfork
 	icon_state = "pitchfork0"

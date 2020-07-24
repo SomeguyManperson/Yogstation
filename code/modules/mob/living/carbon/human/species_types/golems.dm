@@ -623,8 +623,7 @@
 	id = "runic golem"
 	limbs_id = "cultgolem"
 	sexes = FALSE
-	info_text = "As a <span class='danger'>Runic Golem</span>, you possess eldritch powers granted by the Elder Goddess Nar'Sie."
-	species_traits = list(NOBLOOD,NO_UNDERWEAR,NOEYESPRITES,NOFLASH) //no mutcolors
+	info_text = "As a <span class='danger'>Runic Golem</span>, you possess eldritch powers granted by the Elder Goddess Nar'Sie."	species_traits = list(NOBLOOD,NO_UNDERWEAR,NOEYESPRITES,NOFLASH) //no mutcolors
 	prefix = "Runic"
 	special_names = null
 
@@ -901,7 +900,7 @@
 	last_gong_time = world.time
 	for(var/mob/living/M in get_hearers_in_view(7,H))
 		if(M.stat == DEAD)	//F
-			return
+			continue
 		if(M == H)
 			H.show_message("<span class='narsiesmall'>You cringe with pain as your body rings around you!</span>", MSG_AUDIBLE)
 			H.playsound_local(H, 'sound/effects/gong.ogg', 100, TRUE)
@@ -1060,7 +1059,7 @@
 	special_names = list("Head", "Broth", "Fracture", "Rattler", "Appetit")
 	liked_food = GROSS | MEAT | RAW
 	toxic_food = null
-	species_traits = list(NOBLOOD,NO_UNDERWEAR,NOEYESPRITES,NOFLASH)
+	species_traits = list(NOBLOOD,NO_UNDERWEAR,NOEYESPRITES,HAS_BONE)
 	inherent_biotypes = list(MOB_UNDEAD, MOB_HUMANOID)
 	mutanttongue = /obj/item/organ/tongue/bone
 	sexes = FALSE
@@ -1079,7 +1078,6 @@
 	if(bonechill)
 		bonechill.Remove(C)
 	..()
-
 /datum/action/innate/bonechill
 	name = "Bone Chill"
 	desc = "Rattle your bones and strike fear into your enemies!"

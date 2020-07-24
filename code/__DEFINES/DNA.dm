@@ -118,8 +118,6 @@
 /// Used if we want the mutant colour to be only used by mutant bodyparts. Don't combine this with MUTCOLORS, or it will be useless.
 #define MUTCOLORS_PARTSONLY	8
 #define NOZOMBIE		9
-/// If we want a race to have a standard color (for now this is only polysmorphs)
-#define NOCOLORCHANGE   20
 /// Uses weird leg sprites. Optional for Lizards, required for ashwalkers. Don't give it to other races unless you make sprites for this (see human_parts_greyscale.dmi)
 #define DIGITIGRADE		10
 #define NO_UNDERWEAR	11
@@ -132,10 +130,18 @@
 #define DYNCOLORS		17
 /// Forced genders
 #define AGENDER			18
-#define FGENDER         21
-#define MGENDER	        22
+#define FGENDER         19
+#define MGENDER	        20
 /// Do not draw eyes or eyeless overlay
-#define NOEYESPRITES	19
+#define NOEYESPRITES	21
+#define CAN_SCAR		22
+/// If we want a race to have a standard color (for now this is only polysmorphs)
+#define NOCOLORCHANGE   23
+/// Used for determining which wounds are applicable to this species.
+/// if we have flesh (can suffer slash/piercing/burn wounds, requires they don't have NOBLOOD)
+#define HAS_FLESH	23
+/// if we have bones (can suffer bone wounds)
+#define HAS_BONE	24
 
 //organ slots
 #define ORGAN_SLOT_BRAIN "brain"
@@ -173,6 +179,7 @@
 #define CHROMOSOME_NONE 1
 #define CHROMOSOME_USED 2
 
+//used for mob's genetic gender
 #define G_MALE 1
 #define G_FEMALE 2
 #define G_PLURAL 3

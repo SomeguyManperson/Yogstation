@@ -1,13 +1,12 @@
 
-/mob/living/silicon/apply_damage(damage = 0,damagetype = BRUTE, def_zone = null, blocked = FALSE)
-	var/hit_percent = (100-blocked)/100
-	if(!damage || (hit_percent <= 0))
+/mob/living/silicon/apply_damage(damage = 0,damagetype = BRUTE, def_zone = null, blocked = FALSE, forced = FALSE, wound_bonus = 0, bare_wound_bonus = 0, sharpness = FALSE)	var/hit_percent = (100-blocked)/100
+	if((!damage || (!forced && hit_percent <= 0)))
 		return 0
 	switch(damagetype)
 		if(BRUTE)
-			adjustBruteLoss(damage * hit_percent)
+			adjustBruteLoss(damage_amount, forced = forced)
 		if(BURN)
-			adjustFireLoss(damage * hit_percent)
+			adjustFireLoss(damage_amount, forced = forced)
 	return 1
 
 

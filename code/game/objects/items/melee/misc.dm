@@ -58,6 +58,8 @@
 	attack_verb = list("slashed", "cut")
 	hitsound = 'sound/weapons/rapierhit.ogg'
 	materials = list(/datum/material/iron = 1000)
+	wound_bonus = 10
+	bare_wound_bonus = 25
 
 /obj/item/melee/cutlass
 	name = "cutlass"

@@ -30,21 +30,20 @@
 	healable = 0
 	environment_smash = ENVIRONMENT_SMASH_STRUCTURES
 	obj_damage = 50
-	melee_damage_lower = 30
-	melee_damage_upper = 30
-	see_in_dark = 8
+	sharpness = IS_SHARP	see_in_dark = 8
 	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
 	bloodcrawl = BLOODCRAWL_EAT
 	var/playstyle_string = "<span class='big bold'>You are a slaughter demon,</span><B> a terrible creature from another realm. You have a single desire: To kill.  \
 							You may use the \"Blood Crawl\" ability near blood pools to travel through them, appearing and disappearing from the station at will. \
 							Pulling a dead or unconscious mob while you enter a pool will pull them in with you, allowing you to feast and regain your health. \
-							You move quickly upon leaving a pool of blood, but the material world will soon sap your strength and leave you sluggish. </B>"
+							You gain strength the more attacks you land on live humanoids, though this resets when you return to the blood zone.\
 
 	loot = list(/obj/effect/decal/cleanable/blood, \
 				/obj/effect/decal/cleanable/blood/innards, \
 				/obj/item/organ/heart/demon)
 	del_on_death = 1
 	deathmessage = "screams in anger as it collapses into a puddle of viscera!"
+/// How many times we have hit humanoid targets since we last bloodcrawled, scaling wounding power
 
 /mob/living/simple_animal/slaughter/Initialize()
 	..()
@@ -54,6 +53,16 @@
 		bloodspell.phased = TRUE
 
 /obj/effect/decal/cleanable/blood/innards
+/mob/living/simple_animal/slaughter/UnarmedAttack(atom/A, proximity)
+	if(iscarbon(A))
+		var/mob/living/carbon/target = A
+		if(target.stat != DEAD && target.mind && current_hitstreak < wound_bonus_hitstreak_max)
+			current_hitstreak++
+			wound_bonus += wound_bonus_per_hit
+			bare_wound_bonus += wound_bonus_per_hit
+
+	return ..()
+
 	name = "pile of viscera"
 	desc = "A repulsive pile of guts and gore."
 	gender = NEUTER

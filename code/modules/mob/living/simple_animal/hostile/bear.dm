@@ -25,9 +25,7 @@
 	var/armored = FALSE
 
 	obj_damage = 60
-	melee_damage_lower = 20
-	melee_damage_upper = 30
-	attacktext = "claws"
+	attack_verb_simple = "claw"
 	attack_sound = 'sound/weapons/bladeslice.ogg'
 	friendly = "bear hugs"
 
@@ -63,8 +61,6 @@
 	icon_dead = "combatbear_dead"
 	faction = list("russian")
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/meat/slab/bear = 5, /obj/item/clothing/head/bearpelt = 1, /obj/item/bear_armor = 1)
-	melee_damage_lower = 25
-	melee_damage_upper = 35
 	armour_penetration = 20
 	health = 120
 	maxHealth = 120
@@ -96,32 +92,9 @@
 		A.maxHealth += 60
 		A.health += 60
 		A.armour_penetration += 20
-		A.melee_damage_lower += 5
+		A.melee_damage_lower += 3
 		A.melee_damage_upper += 5
 		A.update_icons()
 		to_chat(user, "<span class='info'>You strap the armor plating to [A] and sharpen [A.p_their()] claws with the nail filer. This was a great idea.</span>")
 		qdel(src)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

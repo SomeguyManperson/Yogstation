@@ -130,7 +130,7 @@
 	materials = list(/datum/material/iron=4000, /datum/material/glass=1000)
 	attack_verb = list("attacked", "slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
 	hitsound = 'sound/weapons/bladeslice.ogg'
-	sharpness = IS_SHARP_ACCURATE
+	sharpness = SHARP_EDGED
 
 /obj/item/scalpel/Initialize()
 	. = ..()
@@ -175,7 +175,7 @@
 	throw_range = 5
 	materials = list(/datum/material/iron=10000, /datum/material/glass=6000)
 	attack_verb = list("attacked", "slashed", "sawed", "cut")
-	sharpness = IS_SHARP
+	sharpness = SHARP_EDGED
 
 /obj/item/circular_saw/Initialize()
 	. = ..()
@@ -294,7 +294,7 @@
 	force = 16
 	toolspeed = 0.7
 	light_color = LIGHT_COLOR_GREEN
-
+	sharpness = IS_SHARP_ACCURATE
 /obj/item/scalpel/advanced/Initialize()
 	. = ..()
 	set_light(1)
@@ -417,7 +417,7 @@
 	. = ..()
 	set_light(1)
 
-/obj/item/surgicaldrill/advanced/attack_self(mob/user)
+/obj/item/surgicaldrill/advanced/attack_self(mob/user)"
 	playsound(get_turf(user),'sound/weapons/tap.ogg',50,1)
 	to_chat(user, "<span class='notice'>You dilate the lenses, setting it to mending mode.</span>")
 	if(issilicon(user))
@@ -440,12 +440,11 @@
 	name = "searing tool"
 	desc = "It projects a high power laser used for medical application. It's set to mending mode."
 	icon = 'icons/obj/surgery.dmi'
-	icon_state = "cautery_a"
+
 	hitsound = 'sound/items/welder2.ogg'
 	force = 15
 	toolspeed = 0.7
 	light_color = LIGHT_COLOR_RED
-
 /obj/item/cautery/advanced/Initialize()
 	. = ..()
 	set_light(1)

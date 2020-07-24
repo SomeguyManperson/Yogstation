@@ -271,7 +271,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<b>Backpack:</b><BR><a href ='?_src_=prefs;preference=bag;task=input'>[backbag]</a><BR>"
 			dat += "<b>Uplink Spawn Location:</b><BR><a href ='?_src_=prefs;preference=uplink_loc;task=input'>[uplink_spawn_loc]</a><BR></td>"
 
-			var/use_skintones = pref_species.use_skintones
+
+				dat += "<a href='?_src_=prefs;preference=clear_scars'>Clear scar slots</A>"			var/use_skintones = pref_species.use_skintones
 			if(use_skintones)
 
 				dat += APPEARANCE_CATEGORY_COLUMN

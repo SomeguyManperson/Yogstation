@@ -188,6 +188,16 @@
 		/obj/item/holosign_creator/medical
 		))
 
+/obj/item/storage/belt/medical/paramedic/PopulateContents()
+	new /obj/item/sensor_device(src)
+	new /obj/item/pinpointer/crew/prox(src)
+	new /obj/item/stack/medical/gauze/twelve(src)
+	new /obj/item/reagent_containers/syringe(src)
+	new /obj/item/stack/medical/bone_gel(src)
+	new /obj/item/stack/sticky_tape/surgical(src)
+	new /obj/item/reagent_containers/glass/bottle/formaldehyde(src)
+	update_icon()
+
 /obj/item/storage/belt/security
 	name = "security belt"
 	desc = "Can hold security gear like handcuffs and flashes."
@@ -545,8 +555,7 @@
 /obj/item/storage/belt/bandolier
 	name = "bandolier"
 	desc = "A bandolier for holding shotgun ammunition."
-	icon_state = "bandolier"
-	item_state = "bandolier"
+	icon_state = "bandolier"	item_state = "bandolier"
 
 /obj/item/storage/belt/bandolier/ComponentInitialize()
 	. = ..()

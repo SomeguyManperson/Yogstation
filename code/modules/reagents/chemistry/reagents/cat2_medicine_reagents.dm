@@ -272,6 +272,5 @@
 	. = TRUE
 
 #undef isthiaormusc
-
 /******NICHE******/
 //todo

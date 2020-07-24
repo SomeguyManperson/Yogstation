@@ -43,6 +43,10 @@
 			handle_embedded_objects()
 
 		dna.species.spec_life(src) // for mutantraces
+	else
+		for(var/i in all_wounds)
+			var/datum/wound/iter_wound = i
+			iter_wound.on_stasis()
 
 		//yogs start - bandage memes
 		if(stat != DEAD)

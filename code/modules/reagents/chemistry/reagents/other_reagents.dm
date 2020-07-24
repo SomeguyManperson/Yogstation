@@ -183,6 +183,11 @@
 		M.ExtinguishMob()
 	..()
 
+/datum/reagent/water/on_mob_life(mob/living/carbon/M)
+	. = ..()
+	if(M.blood_volume)
+		M.blood_volume += 0.1 // water is good for you!
+
 /datum/reagent/water/holywater
 	name = "Holy Water"
 	description = "Water blessed by some deity."
@@ -206,6 +211,8 @@
 	..()
 
 /datum/reagent/water/holywater/on_mob_life(mob/living/carbon/M)
+	if(M.blood_volume)
+		M.blood_volume += 0.1 // water is good for you!
 	if(!data)
 		data = list("misc" = 1)
 	data["misc"]++
@@ -573,7 +580,6 @@
 	race = /datum/species/android
 	mutationtext = "<span class='danger'>The pain subsides. You feel... artificial.</span>"
 
-
 //BLACKLISTED RACES
 /datum/reagent/mutationtoxin/skeleton
 	name = "Skeleton Mutation Toxin"
@@ -595,7 +601,6 @@
 	color = "#5EFF3B" //RGB: 94, 255, 59
 	race = /datum/species/lizard/ashwalker
 	mutationtext = "<span class='danger'>The pain subsides. You feel... savage.</span>"
-
 
 //DANGEROUS RACES
 /datum/reagent/mutationtoxin/shadow
@@ -746,6 +751,7 @@
 	color = "#808080" // rgb: 128, 128, 128
 	taste_mult = 0
 
+
 /datum/reagent/nitrogen/reaction_obj(obj/O, reac_volume)
 	if((!O) || (!reac_volume))
 		return 0
@@ -843,7 +849,6 @@
 	reagent_state = SOLID
 	color = "#832828" // rgb: 131, 40, 40
 	taste_description = "vinegar"
-
 /datum/reagent/lithium
 	name = "Lithium"
 	description = "A silver metal, its claim to fame is its remarkably low density. Using it is a bit too effective in calming oneself down."
@@ -1424,9 +1429,6 @@
 	color = "#FFFFFF" // white
 	random_color_list = list("#FFFFFF") //doesn't actually change appearance at all
 
-
-
-
 //////////////////////////////////Hydroponics stuff///////////////////////////////
 
 /datum/reagent/plantnutriment
@@ -1459,12 +1461,6 @@
 	description = "Very potent nutriment that prevents plants from mutating."
 	color = "#9D9D00" // RBG: 157, 157, 0
 	tox_prob = 15
-
-
-
-
-
-
 
 // GOON OTHERS
 
@@ -1544,7 +1540,6 @@
 	color = "#C8A5DC"
 	var/list/random_color_list = list("#00aedb","#a200ff","#f47835","#d41243","#d11141","#00b159","#00aedb","#f37735","#ffc425","#008744","#0057e7","#d62d20","#ffa700")
 	taste_description = "rainbows"
-
 
 /datum/reagent/colorful_reagent/on_mob_life(mob/living/carbon/M)
 	M.add_atom_colour(pick(random_color_list), WASHABLE_COLOUR_PRIORITY)
@@ -1950,8 +1945,9 @@
 	color = "#E6E6DA"
 	taste_mult = 0
 
+	..()
+
 /datum/reagent/lemoline
 	name = "Lemoline"
 	description = "Synthesized in off-station laboratories, used in several high-quality medicines."
 	color ="#FFF44F"
-	taste_description = "lemony"

@@ -297,7 +297,7 @@
 	maxHealth = 25
 	melee_damage_lower = 15
 	melee_damage_upper = 15
-	obj_damage = 0
+	sharpness = TRUE	obj_damage = 0
 	environment_smash = ENVIRONMENT_SMASH_NONE
 	attacktext = "cuts"
 	attack_sound = 'sound/weapons/bladeslice.ogg'

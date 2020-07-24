@@ -137,17 +137,7 @@
 		if(tar.anti_magic_check())
 			tar.visible_message("<span class='danger'>The energies from [user]'s hand jump at [target], but are dispersed!</span>","<span class='danger'>Something jumps off of [user]'s hand, but it disperses on contact with you!</span>")
 			return ..()
-		var/mob/living/carbon/C2 = user
-		if(isliving(target))
-			var/mob/living/L = target
-			L.adjustBruteLoss(20)
-			C2.adjustBruteLoss(-20)
-		if(iscarbon(target))
-			var/mob/living/carbon/C1 = target
-			C1.blood_volume -= 20
-			if(C2.blood_volume < BLOOD_VOLUME_MAXIMUM(C2)) //we dont want to explode after all
-				C2.blood_volume += 20
-		return ..()
+			C2.blood_volume += 20		return ..()
 
 /obj/effect/proc_holder/spell/targeted/projectile/dumbfire/rust_wave
 	name = "Patron's Reach"
@@ -234,11 +224,6 @@
 			continue
 
 		target.visible_message("<span class='danger'>[target]'s veins are shredded from within as an unholy blaze erupts from their blood!</span>", \
-							"<span class='danger'>You feel your skin scald as superheated blood bursts from your veins!</span>")
-		//var/obj/item/bodypart/bodypart = pick(target.bodyparts)
-		//var/datum/wound/slash/critical/crit_wound = new
-		//crit_wound.apply_wound(bodypart)
-		target.bleed_rate += 15
 		target.adjustFireLoss(20)
 		new /obj/effect/temp_visual/cleave(target.drop_location())
 
@@ -419,6 +404,7 @@
 
 /obj/effect/proc_holder/spell/targeted/fire_sworn
 	name = "Oath of Fire"
+
 	desc = "Engulf yourself in a cloak of flames for a minute. The flames are harmless to you, but dangerous to anyone else."
 	invocation = "FUEL FOR THE FIRE"
 	invocation_type = "shout"

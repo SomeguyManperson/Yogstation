@@ -1,8 +1,7 @@
 // .45 (M1911 & C20r)
 
 /obj/item/projectile/bullet/c45
-	name = ".45 bullet"
-	damage = 30
+	name = ".45 bullet"	damage = 30
 
 // 4.6x30mm (Autorifles)
 
@@ -10,6 +9,8 @@
 	name = "4.6x30mm bullet"
 	damage = 20
 	armour_penetration = 20
+	wound_bonus = -5
+	bare_wound_bonus = 5
 
 /obj/item/projectile/bullet/c46x30mm_ap
 	name = "4.6x30mm armor-piercing bullet"
@@ -25,3 +26,4 @@
 	name = "4.6x30mm rubber bullet"
 	damage = 5
 	stamina = 20 //slightly more effective than the detective's revolver when fired in bursts
+	sharpness = FALSE

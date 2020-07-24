@@ -314,7 +314,7 @@ SUBSYSTEM_DEF(persistence)
 	var/list/file_data = list()
 
 	//asert globchems done
-	for(var/randomized_type in subtypesof(/datum/chemical_reaction/randomized))
+	for(var/randomized_type in subtypesof(/datum/chemical_reaction/randomized))		if(R && R.persistent)
 		var/datum/chemical_reaction/randomized/R = randomized_type
 		R = get_chemical_reaction(initial(R.id)) //ew, would be nice to add some simple tracking
 		if(R && R.persistent && R.id)
@@ -345,4 +345,4 @@ SUBSYSTEM_DEF(persistence)
 
 	var/json_file = file("data/paintings.json")
 	fdel(json_file)
-	WRITE_FILE(json_file, json_encode(paintings))
+		ending_human.client.prefs.save_character()

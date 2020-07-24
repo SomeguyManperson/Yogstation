@@ -4,7 +4,7 @@
 		return TRUE
 
 //Dismember a limb
-/obj/item/bodypart/proc/dismember(dam_type = BRUTE)
+/obj/item/bodypart/proc/dismember(dam_type = BRUTE, silent=TRUE)
 	if(!owner)
 		return FALSE
 	var/mob/living/carbon/C = owner
@@ -16,9 +16,12 @@
 		return FALSE
 
 	var/obj/item/bodypart/affecting = C.get_bodypart(BODY_ZONE_CHEST)
-	affecting.receive_damage(clamp(brute_dam/2 * affecting.body_damage_coeff, 15, 50), clamp(burn_dam/2 * affecting.body_damage_coeff, 0, 50)) //Damage the chest based on limb's existing damage
-	C.visible_message("<span class='danger'><B>[C]'s [src.name] has been violently dismembered!</B></span>")
-	INVOKE_ASYNC(C, /mob.proc/emote, "scream")
+
+	affecting.receive_damage(clamp(brute_dam/2 * affecting.body_damage_coeff, 15, 50), clamp(burn_dam/2 * affecting.body_damage_coeff, 0, 50), wound_bonus=CANT_WOUND) //Damage the chest based on limb's existing damage
+	if(!silent)
+		C.visible_message("<span class='danger'><B>[C]'s [name] is violently dismembered!</B></span>")
+	C.emote("scream")
+	playsound(get_turf(C), 'sound/effects/dismember.ogg', 80, TRUE)
 	SEND_SIGNAL(C, COMSIG_ADD_MOOD_EVENT, "dismembered", /datum/mood_event/dismembered)
 	drop_limb()
 
@@ -29,6 +32,7 @@
 	var/turf/location = C.loc
 	if(istype(location))
 		C.add_splatter_floor(location)
+	C.bleed(rand(20, 40))
 	var/direction = pick(GLOB.cardinals)
 	var/t_range = rand(2,max(throw_range/2, 2))
 	var/turf/target_turf = get_turf(src)
@@ -77,7 +81,7 @@
 
 
 //limb removal. The "special" argument is used for swapping a limb with a new one without the effects of losing a limb kicking in.
-/obj/item/bodypart/proc/drop_limb(special)
+/obj/item/bodypart/proc/drop_limb(special, dismembered)
 	if(!owner)
 		return
 	var/atom/Tsec = owner.drop_location()
@@ -86,8 +90,6 @@
 	C.bodyparts -= src
 
 	if(held_index)
-		C.dropItemToGround(owner.get_item_for_held_index(held_index), 1)
-		C.hand_bodyparts[held_index] = null
 
 	owner = null
 
@@ -136,7 +138,52 @@
 
 	forceMove(Tsec)
 
+/**
+  * get_mangled_state() is relevant for flesh and bone bodyparts, and returns whether this bodypart has mangled skin, mangled bone, or both (or neither i guess)
+  *
+  * Dismemberment for flesh and bone requires the victim to have the skin on their bodypart destroyed (either a critical cut or piercing wound), and at least a hairline fracture
+  * (severe bone), at which point we can start rolling for dismembering. The attack must also deal at least 10 damage, and must be a brute attack of some kind (sorry for now, cakehat, maybe later)
+  *
+  * Returns: BODYPART_MANGLED_NONE if we're fine, BODYPART_MANGLED_FLESH if our skin is broken, BODYPART_MANGLED_BONE if our bone is broken, or BODYPART_MANGLED_BOTH if both are broken and we're up for dismembering
+  */
+/obj/item/bodypart/proc/get_mangled_state()
+	. = BODYPART_MANGLED_NONE
 
+	for(var/i in wounds)
+		var/datum/wound/iter_wound = i
+		if((iter_wound.wound_flags & MANGLES_BONE))
+			. |= BODYPART_MANGLED_BONE
+		if((iter_wound.wound_flags & MANGLES_FLESH))
+			. |= BODYPART_MANGLED_FLESH
+
+/**
+  * try_dismember() is used, once we've confirmed that a flesh and bone bodypart has both the skin and bone mangled, to actually roll for it
+  *
+  * Mangling is described in the above proc, [/obj/item/bodypart/proc/get_mangled_state()]. This simply makes the roll for whether we actually dismember or not
+  * using how damaged the limb already is, and how much damage this blow was for. If we have a critical bone wound instead of just a severe, we add +10% to the roll.
+  * Lastly, we choose which kind of dismember we want based on the wounding type we hit with. Note we don't care about all the normal mods or armor for this
+  *
+  * Arguments:
+  * * wounding_type: Either WOUND_BLUNT, WOUND_SLASH, or WOUND_PIERCE, basically only matters for the dismember message
+  * * wounding_dmg: The damage of the strike that prompted this roll, higher damage = higher chance
+  * * wound_bonus: Not actually used right now, but maybe someday
+  * * bare_wound_bonus: ditto above
+  */
+/obj/item/bodypart/proc/try_dismember(wounding_type, wounding_dmg, wound_bonus, bare_wound_bonus)
+	if(wounding_dmg < DISMEMBER_MINIMUM_DAMAGE)
+		return
+
+	var/base_chance = wounding_dmg + (get_damage() / max_damage * 50) // how much damage we dealt with this blow, + 50% of the damage percentage we already had on this bodypart
+	if(locate(/datum/wound/blunt/critical) in wounds) // we only require a severe bone break, but if there's a critical bone break, we'll add 10% more
+		base_chance += 10
+
+	if(!prob(base_chance))
+		return
+
+	var/datum/wound/loss/dismembering = new
+	dismembering.apply_dismember(src, wounding_type)
+
+	return TRUE
 
 //when a limb is dropped, the internal organs are removed from the mob and put into the limb
 /obj/item/organ/proc/transfer_to_limb(obj/item/bodypart/LB, mob/living/carbon/C)
@@ -255,21 +302,15 @@
 /obj/item/bodypart/proc/replace_limb(mob/living/carbon/C, special)
 	if(!istype(C))
 		return
-	var/obj/item/bodypart/O = C.get_bodypart(body_zone)
+		return
 	if(O)
 		O.drop_limb(1)
-	attach_limb(C, special)
 
 /obj/item/bodypart/head/replace_limb(mob/living/carbon/C, special)
 	if(!istype(C))
 		return
 	var/obj/item/bodypart/head/O = C.get_bodypart(body_zone)
 	if(O)
-		if(!special)
-			return
-		else
-			O.drop_limb(1)
-	attach_limb(C, special)
 
 /obj/item/bodypart/proc/attach_limb(mob/living/carbon/C, special)
 	moveToNullspace()
@@ -376,5 +417,11 @@
 			L.burn_dam = 0
 			L.brutestate = 0
 			L.burnstate = 0
-		L.attach_limb(src, 1)
-		return 1
+
+		if(!L.attach_limb(src, 1))
+			qdel(L)
+			return FALSE
+		var/datum/scar/scaries = new
+		var/datum/wound/loss/phantom_loss = new // stolen valor, really
+		scaries.generate(L, phantom_loss)
+		return TRUE
